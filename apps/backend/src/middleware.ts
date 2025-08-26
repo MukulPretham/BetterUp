@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { signUpReq } from "./types";
 
 // extend Express request type to include user
 export interface AuthRequest extends Request {
-  user?: string | JwtPayload;
+  user?: signUpReq|JwtPayload;
 }
 
 export const authMiddleware = (
@@ -24,8 +25,8 @@ export const authMiddleware = (
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    req.user = decoded;
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    req.user = decoded?.username// attach user info to request
     next();
   } catch (err) {
     return res.status(401).json({ error: "Unauthorized" });
