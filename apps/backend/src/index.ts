@@ -90,7 +90,6 @@ app.post("/addWebsite",authMiddleware,async(req:AuthRequest,res)=>{
 
             await initDB(currWebsite.url)
         }
-
         //Get the current website details
         const currWebsite = await client.website.findFirst({
             where:{

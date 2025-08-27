@@ -16,14 +16,12 @@ export async function initDB(url: string) {
                     data: {
                         siteId: currWebsite?.id,
                         regionId: region.id,
-                        status :false
                     }
                 })
                 await client.latency.create({
                     data: {
                         siteId: currWebsite?.id,
                         regionId: region.id,
-                        latency : 0
                     }
                 })
             })
