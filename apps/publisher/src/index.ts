@@ -5,9 +5,12 @@ const redisClient = await createClient()
   .on("error", (err) => console.log("Redis Client Error", err))
   .connect();
 
-setInterval(async()=>{
-    const websites = await client.website.findMany()
-    websites.forEach((site)=>{
-        redisClient.lPush("websites",JSON.stringify(site))
-    })
-},3000)
+async function pushWebsites() {
+  const websites = await client.website.findMany();
+  await Promise.all(
+    websites.map(site => redisClient.xAdd("websites", "*", { data: site.url }))
+  );
+  setTimeout(pushWebsites, 3000);
+}
+
+pushWebsites();
