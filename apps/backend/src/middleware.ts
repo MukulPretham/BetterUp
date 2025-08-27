@@ -23,7 +23,6 @@ export const authMiddleware = (
     if (!token) {
       return res.status(401).json({ error: "Invalid token format" });
     }
-
     // Verify token
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
     req.user = decoded?.username// attach user info to request

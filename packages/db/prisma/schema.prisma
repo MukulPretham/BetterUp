@@ -52,7 +52,8 @@ model Status{
   
   siteId String
   regionId String
-  status Boolean
+  status Boolean @default(false)
+  time DateTime @default(now())
 
   websites Website @relation(fields: [siteId],references: [id])
   regions Region @relation(fields: [regionId],references: [id])
@@ -62,7 +63,8 @@ model Latency{
   id String @id @default(uuid())
   siteId String
   regionId String
-  latency Int
+  latency Int @default(999)
+  time DateTime @default(now())
 
   websites Website @relation(fields: [siteId],references: [id])
   regions Region @relation(fields: [regionId],references: [id])

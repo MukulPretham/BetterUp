@@ -6,10 +6,10 @@ import dotenv from "dotenv"
 import { authMiddleware, AuthRequest } from "./middleware"
 import { initDB } from "./helpers"
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-dotenv.config()
+app.use(express.json());
+dotenv.config();
 
 app.post("/signUp",async(req,res)=>{
     const body: signUpReq = req.body;
@@ -33,7 +33,7 @@ app.post("/signUp",async(req,res)=>{
         }
     });
     res.json({"message": "account created"});
-})
+});
 
 app.post("/logIn",async(req,res)=>{
     const body: signUpReq = req.body;
@@ -65,14 +65,16 @@ app.post("/logIn",async(req,res)=>{
 
 app.post("/addWebsite",authMiddleware,async(req:AuthRequest,res)=>{
     const body: Website = req.body;
-    const currUsername: any = req.user?.username;
+    const currUsername: any = req.user;
     try{
+        //Get the current user details
         const currUser = await client.user.findFirst({
             where:{
                 username: currUsername
             }
         });
 
+        //Before adding website to the db, check if already exist
         const exist = await client.website.findFirst({
             where:{
                 url: body.url
@@ -85,9 +87,11 @@ app.post("/addWebsite",authMiddleware,async(req:AuthRequest,res)=>{
                     url: body.url
                 }
             });
+
             await initDB(currWebsite.url)
         }
 
+        //Get the current website details
         const currWebsite = await client.website.findFirst({
             where:{
                 url: body.url
@@ -96,26 +100,35 @@ app.post("/addWebsite",authMiddleware,async(req:AuthRequest,res)=>{
         if (!currWebsite){
             return
         }
-
-        
-
         if (!currUser || !currWebsite){
             res.status(404).json({"error":"db error"})
             return
         }
-        await client.userToWebsite.create({
-            data:{
-                userId: currUser?.id,
-                siteId: currWebsite?.id
+
+        //If user has already is montoring the webiste, then dont add it to the userToWebsite
+        const alreadyMontoring = await client.userToWebsite.findFirst({
+            where:{
+                userId: currUser.id,
+                siteId: currWebsite.id
             }
         });
+        if(!alreadyMontoring){
+            await client.userToWebsite.create({
+                data:{
+                    userId: currUser?.id,
+                    siteId: currWebsite?.id
+                }
+            });
+        }else{
+            return res.json({message: "you are already monitoring the given wensite website"})
+        }
     }catch(err){
         console.log(err)
         res.status(404).json({"error":"db error"})
         return
     }
     res.json({message: "added"})
-})
+});
 
 app.post("/addRegion",async(req,res)=>{
     const body = req.body
@@ -126,9 +139,9 @@ app.post("/addRegion",async(req,res)=>{
         }
     })
     res.json({message: "done"})
-})
+});
 
 app.listen(3000,()=>{
     console.log("server is running")
-})
+});
 
