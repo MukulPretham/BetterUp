@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                     // modern JS output
+    "module": "NodeNext",                   // use ES modules in Node
+    "moduleResolution": "NodeNext",         
+    "strict": true,                         // strict type checking
+    "esModuleInterop": true,                // allow default imports from CJS
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "rootDir": "./src",                     // your TS source files
+    "outDir": "./dist"                      // compiled JS output
+  },
+  "include": ["src"],                       // only compile files from src/
+  "exclude": ["node_modules", "dist"]       // ignore these
+}
