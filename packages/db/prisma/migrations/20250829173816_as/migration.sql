@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "public"."Latency" ALTER COLUMN "latency" SET DEFAULT 999,
+ALTER COLUMN "latency" SET DATA TYPE DOUBLE PRECISION;

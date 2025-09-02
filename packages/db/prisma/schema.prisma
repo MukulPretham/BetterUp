@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,59 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
+model User {
+  id       String          @id @default(uuid())
   username String
   password String
+  email String @unique @default("")
   Websites UserToWebsite[]
 }
 
-model Website{
-  id String @id @default(uuid())
-  name String
-  url String
-
-  users UserToWebsite[]
-  status Status[]
+model Website {
+  id            String          @id @default(uuid())
+  name          String
+  url           String
   latencyReport Latency[]
+  status        Status[]
+  users         UserToWebsite[]
 }
 
-model UserToWebsite{
-  id String @id @default(uuid())
-  userId String
-  siteId String
-
-  Websites Website @relation(fields: [siteId],references: [id])
-  Users User @relation(fields: [userId],references: [id])
+model UserToWebsite {
+  id       String  @id @default(uuid())
+  userId   String
+  siteId   String
+  Websites Website @relation(fields: [siteId], references: [id])
+  Users    User    @relation(fields: [userId], references: [id])
 }
 
-model Region{
-  id String @id @default(uuid())
-  name String
-
-  status Status[]
+model Region {
+  id             String    @id @default(uuid())
+  name           String
   latencyReports Latency[]
+  status         Status[]
 }
 
-model Status{
-  id String @default(uuid()) @id
-  
-  siteId String
+model Status {
+  id       String   @id @default(uuid())
+  siteId   String
   regionId String
-  status Boolean @default(false)
-  time DateTime @default(now())
-
-  websites Website @relation(fields: [siteId],references: [id])
-  regions Region @relation(fields: [regionId],references: [id])
+  status   Boolean  @default(true)
+  regions  Region   @relation(fields: [regionId], references: [id])
+  websites Website  @relation(fields: [siteId], references: [id])
 }
 
-model Latency{
-  id String @id @default(uuid())
-  siteId String
+model Latency {
+  id       String   @id @default(uuid())
+  siteId   String
   regionId String
-  latency Int @default(999)
-  time DateTime @default(now())
-
-  websites Website @relation(fields: [siteId],references: [id])
-  regions Region @relation(fields: [regionId],references: [id])
+  latency  Float      @default(999)
+  time     DateTime @default(now())
+  regions  Region   @relation(fields: [regionId], references: [id])
+  websites Website  @relation(fields: [siteId], references: [id])
 }

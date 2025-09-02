@@ -13,13 +13,16 @@ dotenv.config();
 
 app.post("/signUp",async(req,res)=>{
     const body: signUpReq = req.body;
-    if (!body.password || !body.username){
+    if (!body.password || !body.username ||!body.email){
         res.status(404).json({"error":"invalid format"});
         return
     }
     const exist = await client.user.findMany({
         where:{
-            username: body.username
+            OR: [
+                { username: body.username },
+                { email: body.email }
+            ]
         }
     })
     if(exist.length != 0){
@@ -29,7 +32,8 @@ app.post("/signUp",async(req,res)=>{
     await client.user.create({
         data:{
             username: body.username,
-            password: body.password
+            password: body.password,
+            email: body.email
         }
     });
     res.json({"message": "account created"});
@@ -47,7 +51,7 @@ app.post("/logIn",async(req,res)=>{
         }
     });
     if (!currUser){
-        res.json(404).json({"error":"user does'nt exist"});
+        res.status(404).json({"error":"user does'nt exist"});
         return;
     }
     if (currUser?.password != body.password ){
