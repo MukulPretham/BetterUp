@@ -18,8 +18,10 @@ export const authMiddleware = (
       return res.status(401).json({ error: "No token provided" });
     }
 
-    // Expect header format: "Bearer <token>"
-    const token = authHeader;
+    // Accept both formats: "Bearer <token>" or just "<token>"
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : authHeader;
     if (!token) {
       return res.status(401).json({ error: "Invalid token format" });
     }

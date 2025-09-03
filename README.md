@@ -1,135 +1,266 @@
-# Turborepo starter
+# BetterUp - Website Monitoring Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+A comprehensive website monitoring platform built with modern technologies, similar to BetterUp's monitoring services.
 
-## Using this example
+## 🚀 Features
 
-Run the following command:
+- **Real-time Monitoring**: Monitor website uptime and performance across multiple regions
+- **User Authentication**: Secure login/signup system with JWT tokens
+- **Dashboard**: Beautiful, responsive dashboard with real-time status updates
+- **Website Management**: Add/remove websites from monitoring
+- **Detailed Analytics**: View response times, uptime statistics, and historical data
+- **Multi-region Support**: Monitor from different geographic locations
+- **Admin Panel**: System administration and region management
 
-```sh
-npx create-turbo@latest
-```
+## 🏗️ Architecture
 
-## What's inside?
+### Frontend (Next.js)
+- **Framework**: Next.js 15 with React 19
+- **Styling**: CSS Modules with custom design system
+- **UI Components**: Custom component library
+- **State Management**: React hooks and local storage
 
-This Turborepo includes the following packages/apps:
+### Backend (Node.js)
+- **Framework**: Express.js
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT tokens
+- **API**: RESTful endpoints
 
-### Apps and Packages
+### Monitoring Services (Go)
+- **Publisher**: Publishes website monitoring tasks to Redis
+- **Consumer**: Processes monitoring tasks and updates database
+- **Message Queue**: Redis Streams for real-time communication
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## 📁 Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+BetterUp-turborepo/
+├── apps/
+│   ├── web/                 # Next.js frontend application
+│   ├── backend/             # Express.js API server
+│   ├── publisher/           # Go publisher service
+│   └── worker/              # Go consumer service
+├── packages/
+│   ├── db/                  # Prisma database package
+│   ├── ui/                  # Shared UI components
+│   ├── eslint-config/       # ESLint configuration
+│   └── typescript-config/   # TypeScript configuration
+└── services/                # Go microservices
+    ├── publisher/           # Website monitoring publisher
+    ├── consumer/            # Website monitoring consumer
+    └── nf-server/           # Network function server
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## 🛠️ Setup Instructions
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+### Prerequisites
+- Node.js 18+ and pnpm
+- Go 1.21+
+- PostgreSQL database
+- Redis server
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+### 1. Install Dependencies
+```bash
+# Install root dependencies
+pnpm install
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+# Install all workspace dependencies
+pnpm install --recursive
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 2. Database Setup
+```bash
+# Navigate to database package
+cd packages/db
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+# Run database migrations
+npx prisma migrate dev
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+# Generate Prisma client
+npx prisma generate
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### 3. Backend Setup
+```bash
+# Navigate to backend
+cd apps/backend
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your JWT secret and database URL
 
+# Start the backend server
+pnpm dev
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+### 4. Frontend Setup
+```bash
+# Navigate to web app
+cd apps/web
+
+# Start the development server
+pnpm dev
 ```
 
-## Useful Links
+### 5. Monitoring Services Setup
+```bash
+# Start Redis server
+redis-server
 
-Learn more about the power of Turborepo:
+# Start the publisher service
+cd services/publisher
+go run main.go
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+# Start the consumer service (in another terminal)
+cd services/consumer
+go run main.go
+```
+
+## 🌐 API Endpoints
+
+### Authentication
+- `POST /signUp` - Create new user account
+- `POST /logIn` - User login
+- `GET /profile` - Get user profile (requires auth)
+
+### Website Management
+- `POST /addWebsite` - Add website to monitoring (requires auth)
+- `GET /websites` - Get user's monitored websites (requires auth)
+- `GET /website/:id` - Get website details (requires auth)
+- `DELETE /website/:id` - Remove website from monitoring (requires auth)
+
+### System
+- `GET /regions` - Get all monitoring regions
+- `POST /addRegion` - Add new monitoring region
+
+## 🎨 UI Components
+
+The application includes a comprehensive design system with:
+- **Buttons**: Primary, secondary, and destructive variants
+- **Cards**: Content containers with consistent styling
+- **Forms**: Input fields and form validation
+- **Modals**: Authentication and website management dialogs
+- **Status Indicators**: Online/offline status with color coding
+- **Charts**: Response time visualization
+- **Loading States**: Spinner and skeleton components
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```
+DATABASE_URL="postgresql://username:password@localhost:5432/database"
+JWT_SECRET="your-jwt-secret-key"
+```
+
+#### Database (.env)
+```
+DATABASE_URL="postgresql://username:password@localhost:5432/database"
+```
+
+### Redis Configuration
+- Default: `localhost:6379`
+- Database: `0`
+- Stream: `websites`
+
+## 🚀 Deployment
+
+### Frontend (Vercel/Netlify)
+```bash
+cd apps/web
+pnpm build
+# Deploy the dist folder
+```
+
+### Backend (Railway/Heroku)
+```bash
+cd apps/backend
+pnpm build
+# Deploy with environment variables
+```
+
+### Monitoring Services (Docker)
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+```
+
+## 📊 Monitoring Features
+
+- **Uptime Monitoring**: Check website availability every 3 minutes
+- **Response Time Tracking**: Measure and record response times
+- **Multi-region Monitoring**: Monitor from different geographic locations
+- **Historical Data**: Store and visualize performance trends
+- **Real-time Updates**: Live status updates via Redis streams
+- **Alert System**: Notifications for downtime and performance issues
+
+## 🎯 Usage
+
+1. **Sign Up**: Create a new account or sign in
+2. **Add Websites**: Add websites you want to monitor
+3. **View Dashboard**: See real-time status of all your websites
+4. **Detailed View**: Click on any website for detailed analytics
+5. **Admin Panel**: Manage monitoring regions and system settings
+
+## 🔒 Security
+
+- JWT-based authentication
+- Password hashing (implement bcrypt in production)
+- CORS protection
+- Input validation and sanitization
+- Rate limiting (recommended for production)
+
+## 🧪 Testing
+
+```bash
+# Run frontend tests
+cd apps/web
+pnpm test
+
+# Run backend tests
+cd apps/backend
+pnpm test
+
+# Run Go service tests
+cd services/publisher
+go test ./...
+
+cd services/consumer
+go test ./...
+```
+
+## 📈 Performance
+
+- **Frontend**: Optimized with Next.js 15 and React 19
+- **Backend**: Express.js with efficient database queries
+- **Monitoring**: Go services for high-performance monitoring
+- **Database**: PostgreSQL with proper indexing
+- **Caching**: Redis for real-time data and session management
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in the repository
+- Check the documentation
+- Review the API endpoints
+
+---
+
+Built with ❤️ using Next.js, Express.js, Go, PostgreSQL, and Redis.

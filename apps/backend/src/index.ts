@@ -11,6 +11,18 @@ const app = express();
 app.use(express.json());
 dotenv.config();
 
+// CORS middleware (must be before routes)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 app.post("/signUp",async(req,res)=>{
     const body: signUpReq = req.body;
     if (!body.password || !body.username ||!body.email){
@@ -55,7 +67,8 @@ app.post("/logIn",async(req,res)=>{
         return;
     }
     if (currUser?.password != body.password ){
-        res.json(404).json({"error":"wrong password"});
+        res.status(404).json({"error":"wrong password"});
+        return;
     }
     if (!process.env?.JWT_SECRET){
         res.status(404).json({error: "server error"});
@@ -143,6 +156,223 @@ app.post("/addRegion",async(req,res)=>{
     })
     res.json({message: "done"})
 });
+
+// Get user's websites
+app.get("/websites", authMiddleware, async(req: AuthRequest, res) => {
+    const currUsername: any = req.user;
+    try {
+        const currUser = await client.user.findFirst({
+            where: {
+                username: currUsername
+            }
+        });
+
+        if (!currUser) {
+            res.status(404).json({"error": "user not found"});
+            return;
+        }
+
+        const userWebsites = await client.userToWebsite.findMany({
+            where: {
+                userId: currUser.id
+            },
+            include: {
+                Websites: {
+                    include: {
+                        latencyReport: {
+                            orderBy: {
+                                time: 'desc'
+                            },
+                            take: 1
+                        },
+                        status: {
+                            orderBy: {
+                                id: 'desc'
+                            },
+                            take: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        const websites = userWebsites.map(uw => ({
+            id: uw.Websites.id,
+            name: uw.Websites.name,
+            url: uw.Websites.url,
+            status: uw.Websites.status[0]?.status ?? false,
+            latency: uw.Websites.latencyReport[0]?.latency ?? 999,
+            lastChecked: uw.Websites.latencyReport[0]?.time ?? new Date()
+        }));
+
+        res.json(websites);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({"error": "internal server error"});
+    }
+});
+
+// Get website details with history
+app.get("/website/:id", authMiddleware, async(req: AuthRequest, res) => {
+    const websiteId = req.params.id;
+    const currUsername: any = req.user;
+    
+    try {
+        const currUser = await client.user.findFirst({
+            where: {
+                username: currUsername
+            }
+        });
+
+        if (!currUser) {
+            res.status(404).json({"error": "user not found"});
+            return;
+        }
+
+        // Check if user has access to this website
+        const userWebsite = await client.userToWebsite.findFirst({
+            where: {
+                userId: currUser.id,
+                siteId: websiteId
+            }
+        });
+
+        if (!userWebsite) {
+            res.status(403).json({"error": "access denied"});
+            return;
+        }
+
+        const website = await client.website.findUnique({
+            where: {
+                id: websiteId
+            },
+            include: {
+                latencyReport: {
+                    include: {
+                        regions: {
+                            select: { name: true }
+                        }
+                    },
+                    orderBy: {
+                        time: 'desc'
+                    },
+                    take: 100
+                },
+                status: {
+                    include: {
+                        regions: {
+                            select: { name: true }
+                        }
+                    },
+                    orderBy: {
+                        id: 'desc'
+                    },
+                    take: 100
+                }
+            }
+        });
+
+        if (!website) {
+            res.status(404).json({"error": "website not found"});
+            return;
+        }
+
+        res.json(website);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({"error": "internal server error"});
+    }
+});
+
+// Remove website from user's monitoring
+app.delete("/website/:id", authMiddleware, async(req: AuthRequest, res) => {
+    const websiteId = req.params.id;
+    const currUsername: any = req.user;
+    
+    try {
+        const currUser = await client.user.findFirst({
+            where: {
+                username: currUsername
+            }
+        });
+
+        if (!currUser) {
+            res.status(404).json({"error": "user not found"});
+            return;
+        }
+
+        const userWebsite = await client.userToWebsite.findFirst({
+            where: {
+                userId: currUser.id,
+                siteId: websiteId
+            }
+        });
+
+        if (!userWebsite) {
+            res.status(404).json({"error": "website not found in your monitoring list"});
+            return;
+        }
+
+        await client.userToWebsite.delete({
+            where: {
+                id: userWebsite.id
+            }
+        });
+
+        res.json({message: "website removed from monitoring"});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({"error": "internal server error"});
+    }
+});
+
+// Get user profile
+app.get("/profile", authMiddleware, async(req: AuthRequest, res) => {
+    const currUsername: any = req.user;
+    
+    try {
+        const currUser = await client.user.findFirst({
+            where: {
+                username: currUsername
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true
+            }
+        });
+
+        if (!currUser) {
+            res.status(404).json({"error": "user not found"});
+            return;
+        }
+
+        res.json(currUser);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({"error": "internal server error"});
+    }
+});
+
+// Get all regions
+app.get("/regions", async(req, res) => {
+    try {
+        const regions = await client.region.findMany({
+            select: {
+                id: true,
+                name: true
+            }
+        });
+
+        res.json(regions);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({"error": "internal server error"});
+    }
+});
+
+// CORS middleware
+ 
 
 app.listen(3000,()=>{
     console.log("server is running")
