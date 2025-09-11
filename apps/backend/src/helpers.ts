@@ -1,5 +1,6 @@
 import { client } from "@repo/db/client";
 import { createClient } from "redis";
+import "http"
 
 export async function initDB(url: string) {
     try {
@@ -13,6 +14,7 @@ export async function initDB(url: string) {
         }
         const regions = await client.region.findMany();
         const allPromises = regions.map(async (region) => {
+            
             await client.status.create({
                 data: {
                     siteId: currWebsite?.id,
