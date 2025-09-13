@@ -156,6 +156,48 @@ app.post("/addRegion",async(req,res)=>{
     })
     res.json({message: "done"})
 });
+
+app.get("/getWebsites",authMiddleware,async(req:AuthRequest,res)=>{
+    const currUsername: any = req.user;
+    try{
+        //Get the current user details
+        const currUser = await client.user.findFirst({
+            where:{
+                username: currUsername
+            }
+        });
+        if (!currUser){
+            res.status(404).json({"error":"db error"})
+            return
+        }
+        const userWebsites = await client.userToWebsite.findMany({
+            where:{
+                userId: currUser.id
+            }
+        })
+        const siteIds = userWebsites.map((item)=>{
+            return item.siteId
+        })
+        const websites = await client.website.findMany({
+            where:{
+                id: {
+                    in: siteIds
+                }
+            }
+        })
+        res.json(websites)
+    }catch(err){
+        console.log(err)
+        res.status(404).json({"error":"db error"})
+        return
+    }
+})
+
+app.get("/getRegions",async(req,res)=>{
+    const regions = await client.region.findMany();
+    res.json(regions)
+})
+
 // Get user's websites
 app.listen(3001,()=>{
     console.log("server is running")

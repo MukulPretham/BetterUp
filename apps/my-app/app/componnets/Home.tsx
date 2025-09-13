@@ -16,14 +16,26 @@ interface User {
 }
 
 export function Home() {
+
     const [User,setUser] = useState<any>({name: "none",image: "none",email: "none",id: "none"})
     const session = useSession()
     useEffect(()=>{
-        console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
+        // Setting user data from session
         setUser({name: session.data?.user?.name,
             email: session.data?.user?.email,
             image: session.data?.user?.image
-        })
+        });
+        console.log(session)
+
+        // Getting website data from backend
+        async function fetchWebsites(){
+            const res = await fetch('/api/getWebsites')
+            const data = await res.json()
+            console.log(data)
+
+        }
+        fetchWebsites()
+
     },[])
 
     return (
@@ -83,8 +95,7 @@ export function Home() {
                         </div>
                     </div>
                     <div className="text-center text-gray-500 py-16">
-                        <p>Your monitoring dashboard content will appear here.</p>
-                        <p className="text-sm mt-2">Start by adding a new website to monitor.</p>
+
                     </div>
                 </div>
             </main>

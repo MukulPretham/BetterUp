@@ -42,7 +42,7 @@ export const authOptions = {
 
           if (user) {
             // Any object returned will be saved in `user` property of the JWT
-            return {name: user.username,email: user.email,image: null, id: user.id}
+            return { name: user.username, email: user.email, image: null, id: user.id }
           } else {
             // If you return null then an error will be displayed advising the user to check their details.
             throw new Error("Wrong credentials")
@@ -58,22 +58,26 @@ export const authOptions = {
 
     // ...add more providers here
   ],
+
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }:any) {
+      // On login, persist the user id to token
       if (user) {
         token.id = user.id;
-        token.username = user.username;
       }
       return token;
     },
-    async session({ session, token }: any) {
-      session.user.id = token.id;
-      session.user.username = token.username;
+    async session({ session, token }:any) {
+      // Add the user id to session.user
+      if (token && session.user) {
+        session.user.id = token.id;
+      }
       return session;
     },
   },
+
   secret: process.env.NEXTAUTH_SECRET,
-  pages:{
+  pages: {
     signIn: "/signIn",
   }
 }
