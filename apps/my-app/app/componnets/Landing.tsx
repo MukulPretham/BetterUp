@@ -1,6 +1,8 @@
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function Landing(){
+  const router = useRouter()
     return (
         <div className="min-h-screen bg-gray-900">
           {/* Header */}
@@ -25,7 +27,7 @@ export function Landing(){
                   <button onClick={()=>signIn()} className="text-gray-300 hover:text-white font-medium transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                     Sign In
                   </button>
-                  <button className="bg-gradient-to-r from-emerald-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 hover:from-emerald-600 hover:to-blue-700">
+                  <button onClick={() => router.push("/signUp") } className="bg-gradient-to-r from-emerald-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 transform hover:scale-105 hover:from-emerald-600 hover:to-blue-700">
                     Sign Up Free
                   </button>
                 </div>

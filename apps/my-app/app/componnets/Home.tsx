@@ -19,7 +19,7 @@ export function Home() {
     const [User,setUser] = useState<any>({name: "none",image: "none",email: "none",id: "none"})
     const session = useSession()
     useEffect(()=>{
-        console.log(session.data?.user?.image)
+        console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
         setUser({name: session.data?.user?.name,
             email: session.data?.user?.email,
             image: session.data?.user?.image
