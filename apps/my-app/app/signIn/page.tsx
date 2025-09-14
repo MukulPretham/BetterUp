@@ -24,8 +24,6 @@ export default function SignIn() {
             username: username,
             password: password
         }) 
-        console.log(username)
-        console.log(password)
         if (res?.error) {
             setMsg("Invalid username or password");
         } 

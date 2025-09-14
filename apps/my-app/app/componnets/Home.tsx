@@ -17,18 +17,19 @@ interface User {
 
 export function Home() {
 
-    const [User,setUser] = useState<any>({name: "none",image: "none",email: "none",id: "none"})
+    const [User, setUser] = useState<any>({ name: "none", image: "none", email: "none", id: "none" })
     const session = useSession()
-    useEffect(()=>{
+    useEffect(() => {
         // Setting user data from session
-        setUser({name: session.data?.user?.name,
+        setUser({
+            name: session.data?.user?.name,
             email: session.data?.user?.email,
             image: session.data?.user?.image
         });
         console.log(session)
 
         // Getting website data from backend
-        async function fetchWebsites(){
+        async function fetchWebsites() {
             const res = await fetch('/api/getWebsites')
             const data = await res.json()
             console.log(data)
@@ -36,7 +37,7 @@ export function Home() {
         }
         fetchWebsites()
 
-    },[])
+    }, [])
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
@@ -56,11 +57,12 @@ export function Home() {
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700">
-                                    {User.image ? (
+                                    {User.image && User.image !== "none" ? (
                                         <img className="w-full h-full rounded-full object-cover" src={User.image} alt="Profile" />
                                     ) : (
                                         <UserIcon />
                                     )}
+
                                 </div>
                                 <span className="hidden sm:block font-medium text-gray-300">{User.name}</span>
                             </div>

@@ -2,9 +2,24 @@ import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials";
 import { client } from "@repo/db/client"
-import { pages } from "next/dist/build/templates/app-page";
-import e from "express";
+
 import { stringify } from "querystring";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    }
+  }
+
+  interface JWT {
+    id: string;
+  }
+}
+
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -60,20 +75,34 @@ export const authOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }:any) {
-      // On login, persist the user id to token
+    async signIn({ user, account, profile }: any) {
+      const exist = await client.user.findFirst({
+        where: {
+          id: user?.id
+        }
+      });
+      if (!exist) {
+        await client.user.create({
+          data: {
+            id: user?.id,
+            email: user?.email,
+            username: user?.name,
+            password: user?.id
+          }
+        })
+      }
+      return true
+    },
+    async jwt({ token, user }: any) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id;  // store id in JWT
       }
       return token;
     },
-    async session({ session, token }:any) {
-      // Add the user id to session.user
-      if (token && session.user) {
-        session.user.id = token.id;
-      }
+    async session({ session, token }: any) {
+      session.user.id = token.id;  // pass id to session.user
       return session;
-    },
+    }
   },
 
   secret: process.env.NEXTAUTH_SECRET,

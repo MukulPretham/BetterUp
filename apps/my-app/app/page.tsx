@@ -16,7 +16,7 @@ export default function App() {
 
 function RealPage(){
   const session = useSession()
-  console.log(session.data)
+  
   if (session.status === "authenticated"){
     return(
       <Home/>

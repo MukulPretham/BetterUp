@@ -35,7 +35,6 @@ export default function SignUp() {
             });
 
             const data = await response.json();
-            console.log(data)
 
             if (!response.ok) {
                 // Catches errors like "username already exist" from your backend
