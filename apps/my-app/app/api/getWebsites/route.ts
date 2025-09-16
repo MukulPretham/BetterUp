@@ -4,6 +4,14 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 import { client } from "@repo/db/client";
 
+interface Info {
+  siteId: string,
+  siteName: string,
+  siteUrl: string,
+  region: string
+  status: boolean
+}
+
 export async function GET(req: Request) {
   const session = await getServerSession();
   console.log(session)
@@ -13,7 +21,7 @@ export async function GET(req: Request) {
   //sending webites 
   const currUser = await client.user.findFirst({
     where: {
-      username: session.user?.name||""
+      username: session.user?.name || ""
     },
   })
   const webistes = await client.userToWebsite.findMany({
@@ -31,7 +39,27 @@ export async function GET(req: Request) {
         in: siteIds
       }
     }
-  })
+  });
 
-  return NextResponse.json(sitesInfo)
+  const Info: Info[] = []
+
+  for (const siteInfo of sitesInfo) {
+    for (const region of regions) {
+      const currStatus = await client.status.findFirst({
+        where: {
+          siteId: siteInfo.id,
+          regionId: region.id
+        }
+      });
+  
+      Info.push({
+        siteId: siteInfo.id,
+        siteName: siteInfo.name,
+        siteUrl: siteInfo.url,
+        region: region.name,
+        status: currStatus?.status || false
+      });
+    }
+  }
+return NextResponse.json(Info)
 }
