@@ -11,6 +11,8 @@ interface SiteCardProps {
       <div className="bg-gray-800 rounded-xl p-4 shadow-md flex flex-col justify-between">
         <div>
           <h4 className="text-lg font-bold">{siteName}</h4>
+          
+          <p className="text-sm text-gray-400">{`Site Id:${siteId}`}</p>
           <p className="text-sm text-gray-400">{siteUrl}</p>
           <span className={`text-xs ${status ? 'text-green-400' : 'text-red-400'}`}>
             {status ? 'Online' : 'Offline'}

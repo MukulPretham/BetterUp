@@ -3,6 +3,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { SiteCard } from './SiteCard';
 import { SiteAddModal } from './SitAddModel';
 import { DeleteWebsiteButton } from './DeleteWebsiteButton'; // Add this import
+import { Landing } from './Landing';
 
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,6 +54,25 @@ export function Home() {
       .catch(err => console.error(err));
   };
 
+  if (session.status != "authenticated"){
+    return(
+      <Landing/>
+    )
+  }
+
+  useEffect(()=>{
+    
+    async function fetchWebsites() {
+      const res = await fetch('/api/getWebsites');
+      
+      const data = await res.json();
+      console.log(data);
+      setSiteInfo(data);
+      
+    }
+    fetchWebsites();
+  },[]);
+
   const handleDeleteSite = async (siteId: string) => {
     try {
       const res = await fetch('/api/deleteWebiste', {
@@ -65,9 +85,9 @@ export function Home() {
   
       if (res.ok) {
         setSiteInfo(prev => prev.filter(site => site.siteId !== siteId));
-        console.log(data.message);
+        
       } else {
-        console.error(data.error);
+        
         alert(data.error);
       }
     } catch (err) {

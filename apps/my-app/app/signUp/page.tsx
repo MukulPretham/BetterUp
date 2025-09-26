@@ -26,7 +26,7 @@ export default function SignUp() {
 
         try {
             // This fetch call corresponds to the app.post("/signUp", ...) endpoint you provided.
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/signUp`, {
+            const response = await fetch(`http://localhost:3001/signUp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

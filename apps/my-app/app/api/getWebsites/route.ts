@@ -3,6 +3,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 // Your NextAuth config
 import { NextResponse } from "next/server";
 import { client } from "@repo/db/client";
+import { cookies } from "next/headers";
 
 interface Info {
   siteId: string,
@@ -43,6 +44,8 @@ export async function GET(req: Request) {
 
   const Info: Info[] = []
 
+  
+
   for (const siteInfo of sitesInfo) {
     for (const region of regions) {
       const currStatus = await client.status.findFirst({
@@ -61,5 +64,6 @@ export async function GET(req: Request) {
       });
     }
   }
+  console.log(currUser);
 return NextResponse.json(Info)
 }

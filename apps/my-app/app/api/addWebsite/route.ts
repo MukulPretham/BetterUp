@@ -1,6 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { client } from '@repo/db/client'; // Your Prisma client
+
+
+import { client } from "@repo/db/client";
+import { createClient } from "redis";
+import axios from "axios"
+
+export async function initDB(url: string) {
+    try {
+        const currWebsite = await client.website.findFirst({
+            where: {
+                url: url
+            }
+        })
+        if (!currWebsite) {
+            return
+        }
+        const regions = await client.region.findMany();
+        const redisClient =  createClient({
+            url: "redis://better-up-redis:6379"
+        });
+        // const redisClient = createClient();
+        await redisClient.connect();
+        const allPromises = regions.map(async (region) => {
+            const currStatus = await checkStatus(currWebsite.url)
+            if (!currStatus) {
+
+
+                const res = await redisClient.xAdd(
+                    'notifications', '*', {
+                    "site": JSON.stringify({
+                        siteId: currWebsite.id,
+                        regionId: "all"
+                    })
+                }
+                );
+            }
+            await client.status.create({
+                data: {
+                    siteId: currWebsite?.id,
+                    regionId: region.id,
+                    status: currStatus
+                }
+            })
+            await client.latency.create({
+                data: {
+                    siteId: currWebsite?.id,
+                    regionId: region.id,
+                }
+            })
+        })
+
+        await Promise.all(allPromises)
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+async function checkStatus(url: string): Promise<boolean> {
+    try {
+        const res = await axios.get(`http://${url}`, {
+            timeout: 7000
+        })
+        return res.status >= 200 && res.status < 400; // 200–399 = reachable
+    } catch {
+        return false;
+    }
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -28,12 +95,14 @@ export async function POST(req: NextRequest) {
 
         // Create website if it doesn't exist
         if (!currWebsite) {
+
             currWebsite = await client.website.create({
                 data: {
                     name: body.siteName,
                     url: body.siteUrl,
                 },
             });
+            await initDB(body.siteUrl);
         }
 
         // Check if user is already monitoring this website
@@ -56,7 +125,12 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        return NextResponse.json({ message: 'Website added successfully' });
+        return NextResponse.json({
+            siteId: currWebsite.id,
+            siteName: currWebsite.name,
+            siteUrl: currWebsite.url,
+            status: true
+    });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: 'Server error' }, { status: 500 });

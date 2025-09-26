@@ -101,7 +101,7 @@ app.post("/addWebsite",authMiddleware,async(req:AuthRequest,res)=>{
             const currWebsite = await client.website.create({
                 data:{
                     name : body.name,
-                    url: body.url
+                    url: body.url,
                 }
             });
 
