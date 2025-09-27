@@ -13,6 +13,7 @@ app.use(cors())
 app.use(express.json());
 dotenv.config();
 
+
 // CORS middleware (must be before routes)
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
