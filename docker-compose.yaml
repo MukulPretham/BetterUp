@@ -1,0 +1,36 @@
+services:
+  better-up-postgres:
+    image: postgres:latest
+    container_name: better-up-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: "9059015626"
+    networks:
+      - better-up
+
+  better-up-redis:
+    image: redis:latest
+    container_name: better-up-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - better-up
+
+  better-up-turbo:
+    image: mukulpretham/better-up-turbo:linux
+    container_name: better-up-turbo
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://postgres:9059015626@better-up-postgres:5432/postgres"
+      REDIS_URL: "redis://better-up-redis:6379"
+    depends_on:
+      - better-up-postgres
+      - better-up-redis
+    networks:
+      - better-up
+    
