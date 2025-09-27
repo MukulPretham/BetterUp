@@ -23,6 +23,7 @@ jobs:
             sudo docker volume create pgdata || true
 
             sudo docker rm -f better-up-postgres || true
+            sudo docker rm -f better-up-redis || true
             sudo docker rm -f better-up-turbo || true
 
             sudo docker run -d \
@@ -31,6 +32,11 @@ jobs:
               --network better-up \
               -v pgdata:/var/lib/postgresql/data \
               postgres
+            
+            sudo docker run -d \
+              --name better-up-redis \
+              --network better-up \
+              redis
 
             sudo docker run -d -p 3000:3000 -p 3001:3001 \
             --name better-up-turbo \
