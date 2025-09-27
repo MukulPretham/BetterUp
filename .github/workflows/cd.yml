@@ -42,8 +42,10 @@ jobs:
             sudo docker run -d -p 3000:3000 -p 3001:3001 \
               --name better-up-turbo \
               --network better-up \
-              --env-file .env \
+              -v /home/ubuntu/.env:/nextApp/packages/db/.env \
+              -e PRISMA_ENV_PATH=/nextApp/packages/db/.env \
               ${{ secrets.DOCKER_USERNAME }}/better-up-turbo:linux
+
 
       
 
