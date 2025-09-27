@@ -18,6 +18,7 @@ function RealPage(){
   const session = useSession()
   
   if (session.status === "authenticated"){
+    console.log(session);
     return(
       <Home/>
     )
