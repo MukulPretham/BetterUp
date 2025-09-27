@@ -5,9 +5,11 @@ import { signUpReq, Website } from "./types"
 import dotenv from "dotenv"
 import { authMiddleware, AuthRequest } from "./middleware"
 import { initDB } from "./helpers"
+import cors from "cors"
 
 const app = express();
 
+app.use(cors())
 app.use(express.json());
 dotenv.config();
 
