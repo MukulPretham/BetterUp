@@ -38,6 +38,7 @@ jobs:
               -v pgdata:/var/lib/postgresql/data \
               postgres
             
+            
             sudo docker run -d \
               --name better-up-redis \
               --network better-up \
