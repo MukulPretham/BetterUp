@@ -19,13 +19,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo DATABASE_URL=postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@better-up-postgres:5432/postgres > .env
-            cat > .env.local <<EOL
-            GITHUB_ID=Ov23liEplN3LELF60Ykb
-            GITHUB_SECRET=891aea805752a7709c80318817c53d036db2b117
-            NEXTAUTH_SECRET=some_random_secret
-            NEXTAUTH_DEBUG=false
-            NEXT_PUBLIC_BACKEND_URL=http://3.91.78.206:3001
-            EOL
+            echo -e "GITHUB_ID=${{ secrets.GIT_ID }}\nGITHUB_SECRET=${{ secrets.GIT_SECRET }}\nNEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\nNEXTAUTH_DEBUG=false" > .env.local
+            
 
 
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/better-up-turbo:linux

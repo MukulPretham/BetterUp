@@ -33,4 +33,12 @@ services:
       - better-up-redis
     networks:
       - better-up
+
+networks:
+  better-up:
+    external: true
+
+volumes:
+  pgdata:
+    driver: local
     
