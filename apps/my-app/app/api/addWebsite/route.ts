@@ -60,9 +60,11 @@ export async function initDB(url: string) {
 
 async function checkStatus(url: string): Promise<boolean> {
     try {
+        console.log(`Checking status of ${url}`);
         const res = await axios.get(`http://${url}`, {
             timeout: 7000
         })
+        console.log(`Status of ${url}: ${res.status}`);
         return res.status >= 200 && res.status < 400; // 200–399 = reachable
     } catch {
         return false;

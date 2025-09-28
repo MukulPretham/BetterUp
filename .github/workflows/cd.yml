@@ -18,10 +18,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            echo DATABASE_URL=postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@better-up-postgres:5432/postgres > .env
+            echo DATABASE_URL=postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@better-up-postgres:5432/postgres > .env.turbo
             echo -e "GITHUB_ID=${{ secrets.GIT_ID }}\nGITHUB_SECRET=${{ secrets.GIT_SECRET }}\nNEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\nNEXTAUTH_DEBUG=false"\nNEXTAUTH_URL="http://50.16.33.174:3000" > .env.local
             
-
 
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/better-up-turbo:linux
             sudo docker network create better-up || true
@@ -38,7 +37,6 @@ jobs:
               -v pgdata:/var/lib/postgresql/data \
               postgres
             
-
             sudo docker run -d \
               --name better-up-redis \
               --network better-up \
@@ -47,7 +45,7 @@ jobs:
             sudo docker run -d -p 3000:3000 -p 3001:3001 \
               --name better-up-turbo \
               --network better-up \
-              -v /home/ubuntu/.env:/nextApp/packages/db/.env \
+              -v /home/ubuntu/.env.turbo:/nextApp/packages/db/.env \
               -v /home/ubuntu/.env.local:/nextApp/apps/my-app/.env.local \
               -e PRISMA_ENV_PATH=/nextApp/packages/db/.env \
               ${{ secrets.DOCKER_USERNAME }}/better-up-turbo:linux
