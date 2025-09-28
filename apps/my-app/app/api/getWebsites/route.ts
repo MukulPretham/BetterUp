@@ -64,6 +64,6 @@ export async function GET(req: Request) {
       });
     }
   }
-  console.log(currUser);
+  console.log(Info);
 return NextResponse.json(Info)
 }
