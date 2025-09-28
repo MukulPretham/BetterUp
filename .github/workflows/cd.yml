@@ -19,7 +19,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo DATABASE_URL=postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@better-up-postgres:5432/postgres > .env
-            echo -e "GITHUB_ID=${{ secrets.GIT_ID }}\nGITHUB_SECRET=${{ secrets.GIT_SECRET }}\nNEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\nNEXTAUTH_DEBUG=false" > .env.local
+            echo -e "GITHUB_ID=${{ secrets.GIT_ID }}\nGITHUB_SECRET=${{ secrets.GIT_SECRET }}\nNEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\nNEXTAUTH_DEBUG=false"\nNEXTAUTH_URL="http://50.16.33.174:3000" > .env.local
             
 
 
@@ -38,7 +38,7 @@ jobs:
               -v pgdata:/var/lib/postgresql/data \
               postgres
             
-            
+
             sudo docker run -d \
               --name better-up-redis \
               --network better-up \
