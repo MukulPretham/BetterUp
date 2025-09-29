@@ -49,6 +49,7 @@ jobs:
               -v /home/ubuntu/.env.local:/nextApp/apps/my-app/.env.local \
               -e PRISMA_ENV_PATH=/nextApp/packages/db/.env \
               ${{ secrets.DOCKER_USERNAME }}/better-up-turbo:linux
+              
 
       
 
