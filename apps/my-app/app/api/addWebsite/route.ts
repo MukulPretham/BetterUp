@@ -17,7 +17,7 @@ export async function initDB(url: string) {
             return
         }
         const regions = await client.region.findMany();
-        const redisClient =  createClient({
+        const redisClient = createClient({
             url: "redis://better-up-redis:6379"
         });
         // const redisClient = createClient();
@@ -104,7 +104,19 @@ export async function POST(req: NextRequest) {
                     url: body.siteUrl,
                 },
             });
+            await client.userToWebsite.create({
+                data: {
+                    userId: currUser.id,
+                    siteId: currWebsite.id,
+                },
+            });
             await initDB(body.siteUrl);
+            return NextResponse.json({
+                siteId: currWebsite.id,
+                siteName: currWebsite.name,
+                siteUrl: currWebsite.url,
+                status: true
+            });
         }
 
         // Check if user is already monitoring this website
@@ -132,7 +144,7 @@ export async function POST(req: NextRequest) {
             siteName: currWebsite.name,
             siteUrl: currWebsite.url,
             status: true
-    });
+        });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
