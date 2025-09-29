@@ -24,23 +24,23 @@ export async function initDB(url: string) {
         await redisClient.connect();
         const allPromises = regions.map(async (region) => {
             const currStatus = await checkStatus(currWebsite.url)
-            if (!currStatus) {
+            // if (!currStatus) {
 
 
-                const res = await redisClient.xAdd(
-                    'notifications', '*', {
-                    "site": JSON.stringify({
-                        siteId: currWebsite.id,
-                        regionId: "all"
-                    })
-                }
-                );
-            }
+            //     const res = await redisClient.xAdd(
+            //         'notifications', '*', {
+            //         "site": JSON.stringify({
+            //             siteId: currWebsite.id,
+            //             regionId: "all"
+            //         })
+            //     }
+            //     );
+            // }
             await client.status.create({
                 data: {
                     siteId: currWebsite?.id,
                     regionId: region.id,
-                    status: currStatus
+                    status: false
                 }
             })
             await client.latency.create({
